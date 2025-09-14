@@ -44,13 +44,29 @@ jobs:
       - name: Prepare .config
         working-directory: sdk
         run: |
-          echo "CONFIG_ALL_NONSHARED=n" > .config
-          echo "CONFIG_ALL_KMODS=n" >> .config
-          echo "CONFIG_ALL=n" >> .config
-          echo "CONFIG_AUTOREMOVE=n" >> .config
-          echo "CONFIG_LUCI_LANG_pl=y" >> .config
-          echo "CONFIG_PACKAGE_luci-theme-argon=m" >> .config
+          # minimalny config + nasze zależności
+          cat > .config << 'EOF'
+          CONFIG_ALL_NONSHARED=n
+          CONFIG_ALL_KMODS=n
+          CONFIG_ALL=n
+          CONFIG_AUTOREMOVE=n
+          CONFIG_LUCI_LANG_pl=y
+
+          # argon jako moduł (ipk)
+          CONFIG_PACKAGE_luci-theme-argon=m
+
+          # kluczowe zależności do zbudowania lucihttp:
+          CONFIG_PACKAGE_liblua5.1=y
+          CONFIG_PACKAGE_lua5.1=y
+          CONFIG_PACKAGE_libucode=y
+          CONFIG_PACKAGE_ucode=y
+
+          # dobrym pomysłem jest też mieć luci-base (ściągnie pełne zależności LuCI)
+          CONFIG_PACKAGE_luci-base=y
+          EOF
+
           make defconfig
+
 
       - name: Download sources
         working-directory: sdk
